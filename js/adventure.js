@@ -29,30 +29,37 @@ Adventures.bindErrorHandlers = function () {
 //The core function of the app, sends the user's choice and then parses the results to the server and handling the response
 Adventures.chooseOption = function(){
     Adventures.currentStep = $(this).val();
-    $.ajax("/story",{
-        type: "POST",
-        data: {"user": Adventures.currentUser,
-            "adventure": Adventures.currentAdventure,
-            "next": Adventures.currentStep},
-        dataType: "json",
-        contentType: "application/json",
-        success: function (data) {
-            console.log(data);
-            $(".greeting-text").hide();
-            Adventures.write(data);
-        }
-    });
+    // $.ajax("/story",{
+    //     type: "POST",
+    //     data: {"user": Adventures.currentUser,
+    //         "adventure": Adventures.currentAdventure,
+    //         "next": Adventures.currentStep},
+    //     dataType: "json",
+    //     contentType: "application/json",
+    //     success: function (data) {
+    //         console.log(data);
+    //         $(".greeting-text").hide();
+    //         Adventures.write(data);
+    //     }
+    // });
+       $.get("/next_question/q1",function(data){
+        Adventures.write(data);
+        $(".adventure").show();
+        $(".welcome-screen").hide();
+
+    },"json");
 };
 
-Adventures.write = function (message) {
+Adventures.write = function (data) {
+
     //Writing new choices and image to screen
-    $(".situation-text").text(message["text"]).show();
-    for(var i=0;i<message['options'].length;i++){
-        var opt = $("#option_" + (i+1));
-        opt.text(message['options'][i]['option_text']);
-        opt.prop("value", message['options'][i]['id']);
-    }
-    Adventures.setImage(message["image"]);
+    $(".situation-text").text(data[0]["question_text"]).show();
+    for(var i=0; i < 4; i++){
+         var opt = $("#option_" + (i+1));
+         opt.text(data[i]["answer_text"]);
+    //     opt.prop("value", message['options'][i]['id']);
+     }
+    Adventures.setImage(data[0]["question_image"]);
 };
 
 
@@ -83,21 +90,28 @@ Adventures.checkName = function(){
 
 Adventures.initAdventure = function(){
 
-    $.ajax("/start",{
-        type: "POST",
-        data: {"user":
-            $("#nameField").val(),
-            "adventure_id": $(this).val()
-        },
-        dataType: "json",
-        contentType: "application/json",
-        success: function (data) {
-            console.log(data);
-            Adventures.write(data);
-            $(".adventure").show();
-            $(".welcome-screen").hide();
-        }
-    });
+    $.get("/next_question/q1",function(data){
+        Adventures.write(data);
+        $(".adventure").show();
+        $(".welcome-screen").hide();
+
+    },"json");
+
+    // $.ajax("/start",{
+    //     type: "POST",
+    //     data: {"user":
+    //         $("#nameField").val(),
+    //         "adventure_id": $(this).val()
+    //     },
+    //     dataType: "json",
+    //     contentType: "application/json",
+    //     success: function (data) {
+    //         console.log(data);
+    //         Adventures.write(data);
+    //         $(".adventure").show();
+    //         $(".welcome-screen").hide();
+    //     }
+    // });
 };
 
 Adventures.handleServerError = function (errorThrown) {
